@@ -1,7 +1,4 @@
-package sample;
-
 import com.mysql.jdbc.PreparedStatement;
-
 import com.mysql.jdbc.ResultSetMetaData;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -9,7 +6,6 @@ import javafx.beans.InvalidationListener;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.*;
-import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -25,16 +21,13 @@ import javafx.stage.Stage;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.util.Callback;
-
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.*;
 import java.util.*;
 
 
 public class Main extends Application {
+//Panes and scenes
 FlowPane connectPane = new FlowPane();
 BorderPane cityPane = new BorderPane();
 FlowPane createPane = new FlowPane();
@@ -46,20 +39,16 @@ Scene deletecity = new Scene(deleteCityPane);
 Connection conn;
 ObservableList<ObservableList> data;
 
-
-
-
-
     @Override
     public void start(Stage primaryStage) throws Exception {
-
+        //Opening scene that prompts user to connect to database
         TextField username = new TextField();
         TextField password = new TextField();
         username.setAlignment(Pos.CENTER);
         password.setAlignment(Pos.CENTER);
         Button connect = new Button("Connect");
+        //ActionEvent of button in opening scene that registers drivers and connects you to database
         connect.setOnAction(new EventHandler<ActionEvent>() {
-
             @Override
             public void handle(ActionEvent e) {
                 try {
@@ -82,6 +71,7 @@ ObservableList<ObservableList> data;
 
             }
         });
+        //Opening scene for connecting to database with attributes
         Label user = new Label("Username:");
         Label pass = new Label("Password:");
         user.setAlignment(Pos.CENTER);
@@ -95,26 +85,19 @@ ObservableList<ObservableList> data;
         connectPane.setMinSize(640, 480);
         connectPane.setAlignment(Pos.CENTER);
 
-        //Scene for view of city database
-
+        //Scene for view of city database, main scene where records are shown
         Button populate = new Button("Populate/Update");
         Button delete = new Button("Delete");
         Button create = new Button("Create");
         Button clear = new Button("Exit");
-
         HBox cityButtons = new HBox(populate, delete, create, clear);
+        //Main scene attributes
         cityButtons.setAlignment(Pos.CENTER);
         cityButtons.setSpacing(100);
         cityButtons.setPadding(new Insets(10, 50, 30, 50));
         cityPane.setBottom(cityButtons);
-
-        //HBox for TableView
-
-
-        //tableview settings
-
         cityPane.setMinSize(1024, 768);
-
+        //Button that closes program
         clear.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -131,6 +114,7 @@ ObservableList<ObservableList> data;
         populate.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
+                //Create table and iniatialize it so no duplicate records are added
                 TableView<ObservableList> cityTableView = new TableView<>();
                 TableColumn ID = new TableColumn("ID");
                 TableColumn name = new TableColumn("Name");
@@ -168,11 +152,9 @@ ObservableList<ObservableList> data;
                                 return new SimpleStringProperty(param.getValue().get(j).toString());
                             }
                         });
-
                         cityTableView.getColumns().addAll(col);
                         System.out.println("Column ["+i+"] ");
                     }
-
                     /********************************
                      * Data added to ObservableList *
                      ********************************/
@@ -183,48 +165,44 @@ ObservableList<ObservableList> data;
                             //Iterate Column
                             row.add(rs.getString(i));
                         }
-
                         data.add(row);
-
                     }
-
                     //FINALLY ADDED TO TableView
                     cityTableView.setItems(data);
-
                 }catch(Exception e){
                     e.printStackTrace();
                     System.out.println("Error on Building Data");
                 }
             }
         });
+        //Sends user to record deltion scene
         delete.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 primaryStage.setScene(deletecity);
             }
         });
+        //Sends user to creation of record scene
         create.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 primaryStage.setScene(createScene);
             }
         });
-
-        //Scene for deletion
+        //Scene for deletion of records
         Label deleteID = new Label("Enter ID of record to be deleted: ");
         TextField deleIDField = new TextField();
         Button deleIDButton = new Button("Delete Record");
         VBox deleteIDBox = new VBox(deleteID,deleIDField, deleIDButton);
-
+        //Deletion scene attributes
         deleteID.setAlignment(Pos.CENTER);
         deleIDField.setAlignment(Pos.CENTER);
         deleIDButton.setAlignment(Pos.CENTER);
         deleteIDBox.setAlignment(Pos.CENTER);
         deleteCityPane.setAlignment(Pos.CENTER);
-
         deleteCityPane.getChildren().addAll(deleteIDBox);
         deleteCityPane.setMinSize(640, 480);
-
+        //Deletes record by ID, returns to main scene
         deleIDButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -245,7 +223,7 @@ ObservableList<ObservableList> data;
             }
 
         });
-        //Scene for creation
+        //Scene for creation of records
         Label createID = new Label("ID");
         TextField createIDField = new TextField();
         Label createName = new Label("Name: ");
@@ -258,6 +236,7 @@ ObservableList<ObservableList> data;
         TextField createPopField = new TextField();
         Button createRecord = new Button("Create Record");
         VBox createBox =new VBox(createID,createIDField,createName,createNameField,createCountryCode,createCountryField,createDistrict,createDistrictField,createPop,createPopField,createRecord);
+        //Creation scene attributes
         createBox.setMinSize(640, 480);
         createID.setAlignment(Pos.CENTER);
         createIDField.setAlignment(Pos.CENTER);
@@ -274,6 +253,7 @@ ObservableList<ObservableList> data;
         createPane.getChildren().addAll(createBox);
         createPane.setMinSize(640, 480);
         createPane.setAlignment(Pos.CENTER);
+        //Actionevent that creates a new record, returns you to main scene
         createRecord.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -295,55 +275,9 @@ ObservableList<ObservableList> data;
 
             }
         });
-
         primaryStage.setScene(sceneconnect);
         primaryStage.show();
-
-    }
-    public void writeToFile(int id, String name, String countryCode, String district, int population) throws IOException {
-        BufferedWriter fw = new BufferedWriter(new FileWriter("C:\\Users\\horry\\Desktop\\results.txt", true));
-        if (name == null){
-            fw.flush();
-            fw.close();
-        }
-        fw.write(id + " " + name + " " + countryCode + " " + district + " " + population + " ");
-        try {
-            fw.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
-    public void fillArray(){
-        Scanner scan = new Scanner("C:\\Users\\horry\\Desktop\\results.txt");
-        int count = 1;
-        String ID = "";
-        String name = "";
-        String countrycode= "";
-        String Region = "";
-        String Population = "";
-        while (scan.hasNext()){
-            if (count == 1){
-                ID = scan.next();
-                count++;
-            }else if (count == 2) {
-                count++;
-                name = scan.next();
-            }else if (count == 3){
-                count++;
-                countrycode = scan.next();
-            }else if (count == 4){
-                count++;
-                Region = scan.next();
-            }else{
-                count = 1;
-                Population = scan.next();
-                City city = new City(ID, name, countrycode, Region, Population);
-
-            }
-        }
-
-    }
+    }   
     public static void main(String[] args) {
         launch(args);
     }
